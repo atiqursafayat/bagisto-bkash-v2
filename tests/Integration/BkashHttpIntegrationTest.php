@@ -134,8 +134,7 @@ class BkashHttpIntegrationTest extends TestCase
 
         $this->service->getToken();
 
-        Http::assertSent(fn (Request $request) =>
-            $request->url() === 'https://tokenized.pay.bka.sh/v2/tokenized-checkout/auth/grant-token'
+        Http::assertSent(fn (Request $request) => $request->url() === 'https://tokenized.pay.bka.sh/v2/tokenized-checkout/auth/grant-token'
         );
     }
 

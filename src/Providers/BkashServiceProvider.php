@@ -1,8 +1,10 @@
 <?php
 
-namespace Ihasan\Bkash;
+namespace AtiqurSafayat\Bkash\Providers;
 
-use Ihasan\Bkash\Commands\BkashCommand;
+use AtiqurSafayat\Bkash\Bkash;
+use AtiqurSafayat\Bkash\Commands\BkashCommand;
+use AtiqurSafayat\Bkash\Services\BkashPaymentService;
 use Illuminate\Support\Facades\Http;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -27,7 +29,7 @@ class BkashServiceProvider extends PackageServiceProvider
                 $command
                     ->publishMigrations()
                     ->askToRunMigrations()
-                    ->askToStarRepoOnGitHub('theihasan/bagisto-bkash');
+                    ->askToStarRepoOnGitHub('atiqursafayat/bagisto-bkash-v2');
             });
     }
 
@@ -45,6 +47,7 @@ class BkashServiceProvider extends PackageServiceProvider
             $baseUrl = $isSandbox
                 ? core()->getConfigData('sales.payment_methods.bkash.sandbox_base_url')
                 : core()->getConfigData('sales.payment_methods.bkash.live_base_url');
+            $baseUrl = rtrim((string) $baseUrl, '/');
 
             return Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -57,9 +60,10 @@ class BkashServiceProvider extends PackageServiceProvider
             $baseUrl = $isSandbox
                 ? core()->getConfigData('sales.payment_methods.bkash.sandbox_base_url')
                 : core()->getConfigData('sales.payment_methods.bkash.live_base_url');
+            $baseUrl = rtrim((string) $baseUrl, '/');
 
             return Http::withHeaders([
-                'Authorization' => 'Bearer '.$token,
+                'Authorization' => $token,
                 'X-APP-Key' => $appKey,
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
@@ -70,7 +74,7 @@ class BkashServiceProvider extends PackageServiceProvider
     public function packageRegistered()
     {
         $this->app->singleton(Bkash::class, function ($app) {
-            return new Bkash($app->make(Services\BkashPaymentService::class));
+            return new Bkash($app->make(BkashPaymentService::class));
         });
     }
 

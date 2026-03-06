@@ -1,8 +1,8 @@
 <?php
 
-namespace Ihasan\Bkash\Tests\Unit;
+namespace AtiqurSafayat\Bkash\Tests\Unit;
 
-use Ihasan\Bkash\Tests\TestCase;
+use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,7 +30,7 @@ class ConfigurationTest extends TestCase
         $this->assertEquals('bkash', $bkashConfig['code']);
         $this->assertEquals('BKash', $bkashConfig['title']);
         $this->assertEquals('BKash', $bkashConfig['description']);
-        $this->assertEquals('Ihasan\Bkash\Payment\Bkash', $bkashConfig['class']);
+        $this->assertEquals('AtiqurSafayat\Bkash\Payment\Bkash', $bkashConfig['class']);
         $this->assertTrue($bkashConfig['active']);
         $this->assertEquals(1, $bkashConfig['sort']);
     }
@@ -78,8 +78,8 @@ class ConfigurationTest extends TestCase
         $sandboxField = collect($fields)->firstWhere('name', 'sandbox_base_url');
         $liveField = collect($fields)->firstWhere('name', 'live_base_url');
 
-        $this->assertEquals('https://checkout.sandbox.bka.sh/v1.2.0-beta', $sandboxField['value']);
-        $this->assertEquals('https://checkout.pay.bka.sh/v1.2.0-beta', $liveField['value']);
+        $this->assertEquals('https://tokenized.sandbox.bka.sh/v2/', $sandboxField['value']);
+        $this->assertEquals('https://tokenized.pay.bka.sh/v2/', $liveField['value']);
     }
 
     #[Test]
@@ -125,17 +125,17 @@ class ConfigurationTest extends TestCase
     {
         // Test sandbox mode
         Config::set('sales.payment_methods.bkash.bkash_sandbox', '1');
-        Config::set('sales.payment_methods.bkash.sandbox_base_url', 'https://checkout.sandbox.bka.sh/v1.2.0-beta');
+        Config::set('sales.payment_methods.bkash.sandbox_base_url', 'https://tokenized.sandbox.bka.sh/v2/');
 
         $client = Http::bkash();
-        $this->assertEquals('https://checkout.sandbox.bka.sh/v1.2.0-beta', $client->baseUrl);
+        $this->assertEquals('https://tokenized.sandbox.bka.sh/v2', $client->baseUrl);
 
         // Test live mode
         Config::set('sales.payment_methods.bkash.bkash_sandbox', '0');
-        Config::set('sales.payment_methods.bkash.live_base_url', 'https://checkout.pay.bka.sh/v1.2.0-beta');
+        Config::set('sales.payment_methods.bkash.live_base_url', 'https://tokenized.pay.bka.sh/v2/');
 
         $client = Http::bkash();
-        $this->assertEquals('https://checkout.pay.bka.sh/v1.2.0-beta', $client->baseUrl);
+        $this->assertEquals('https://tokenized.pay.bka.sh/v2', $client->baseUrl);
     }
 
     #[Test]
@@ -147,7 +147,7 @@ class ConfigurationTest extends TestCase
         $client = Http::bkashWithToken($token, $appKey);
 
         // Check that headers are properly set
-        $this->assertEquals('https://checkout.sandbox.bka.sh/v1.2.0-beta', $client->baseUrl);
+        $this->assertEquals('https://tokenized.sandbox.bka.sh/v2', $client->baseUrl);
     }
 
     #[Test]

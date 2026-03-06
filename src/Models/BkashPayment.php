@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash\Models;
+namespace AtiqurSafayat\Bkash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,6 +67,10 @@ class BkashPayment extends Model
     {
         if ($this->attributes['transaction_id']) {
             return $this->attributes['transaction_id'];
+        }
+
+        if (is_array($this->meta) && isset($this->meta['trxId'])) {
+            return $this->meta['trxId'];
         }
 
         if (is_array($this->meta) && isset($this->meta['trxID'])) {

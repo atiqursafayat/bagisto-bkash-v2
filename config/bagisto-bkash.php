@@ -15,7 +15,7 @@ return [
             'code' => 'bkash',
             'title' => 'BKash',
             'description' => 'BKash',
-            'class' => 'Ihasan\Bkash\Payment\Bkash',
+            'class' => 'AtiqurSafayat\Bkash\Payment\Bkash',
             'active' => true,
             'sort' => 1,
         ],
@@ -67,7 +67,7 @@ return [
                     'validation' => 'required_if:bkash_sandbox,1',
                     'channel_based' => false,
                     'locale_based' => false,
-                    'value' => 'https://tokenized.sandbox.bka.sh/v1.2.0-beta',
+                    'value' => 'https://tokenized.sandbox.bka.sh/v2/',
                 ],
                 [
                     'name' => 'live_base_url',
@@ -76,7 +76,7 @@ return [
                     'validation' => 'required_if:bkash_sandbox,0',
                     'channel_based' => false,
                     'locale_based' => false,
-                    'value' => 'https://tokenized.pay.bka.sh/v1.2.0-beta',
+                    'value' => 'https://tokenized.pay.bka.sh/v2/',
                 ],
                 [
                     'name' => 'bkash_username',

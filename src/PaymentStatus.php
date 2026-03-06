@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash;
+namespace AtiqurSafayat\Bkash;
 
 enum PaymentStatus: string
 {

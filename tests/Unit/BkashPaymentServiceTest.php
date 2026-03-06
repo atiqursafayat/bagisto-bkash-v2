@@ -1,12 +1,12 @@
 <?php
 
-namespace Ihasan\Bkash\Tests\Unit;
+namespace AtiqurSafayat\Bkash\Tests\Unit;
 
-use Ihasan\Bkash\Exceptions\ConfigurationException;
-use Ihasan\Bkash\Exceptions\PaymentCreationException;
-use Ihasan\Bkash\Exceptions\TokenException;
-use Ihasan\Bkash\Services\BkashPaymentService;
-use Ihasan\Bkash\Tests\TestCase;
+use AtiqurSafayat\Bkash\Exceptions\ConfigurationException;
+use AtiqurSafayat\Bkash\Exceptions\PaymentCreationException;
+use AtiqurSafayat\Bkash\Exceptions\TokenException;
+use AtiqurSafayat\Bkash\Services\BkashPaymentService;
+use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -46,7 +46,7 @@ class BkashPaymentServiceTest extends TestCase
         $this->assertEquals('test_password', $credentials['password']);
         $this->assertEquals('test_app_key', $credentials['app_key']);
         $this->assertEquals('test_app_secret', $credentials['app_secret']);
-        $this->assertEquals('https://checkout.sandbox.bka.sh/v1.2.0-beta', $credentials['base_url']);
+        $this->assertEquals('https://tokenized.sandbox.bka.sh/v2/', $credentials['base_url']);
         $this->assertTrue($credentials['sandbox']);
     }
 
@@ -109,7 +109,7 @@ class BkashPaymentServiceTest extends TestCase
         $result = $this->service->createPayment($cart);
 
         $this->assertIsArray($result);
-        $this->assertEquals('TR0011test123456789', $result['paymentID']);
+        $this->assertEquals('TR0011test123456789', $result['paymentId']);
         $this->assertEquals('Initiated', $result['transactionStatus']);
         $this->assertEquals('0000', $result['statusCode']);
 
@@ -128,7 +128,7 @@ class BkashPaymentServiceTest extends TestCase
         $this->mockSuccessfulTokenResponse();
 
         Http::fake([
-            '*/checkout/payment/create' => Http::response([
+            '*/tokenized-checkout/payment/create' => Http::response([
                 'statusCode' => '2001',
                 'statusMessage' => 'Invalid request',
             ], 400),
@@ -151,8 +151,8 @@ class BkashPaymentServiceTest extends TestCase
         $result = $this->service->executePayment('TR0011test123456789');
 
         $this->assertIsArray($result);
-        $this->assertEquals('TR0011test123456789', $result['paymentID']);
-        $this->assertEquals('TXN123456789', $result['trxID']);
+        $this->assertEquals('TR0011test123456789', $result['paymentId']);
+        $this->assertEquals('TXN123456789', $result['trxId']);
         $this->assertEquals('Completed', $result['transactionStatus']);
         $this->assertEquals('0000', $result['statusCode']);
     }
@@ -175,8 +175,8 @@ class BkashPaymentServiceTest extends TestCase
         $this->mockSuccessfulTokenResponse();
 
         Http::fake([
-            '*/checkout/payment/query/*' => Http::response([
-                'paymentID' => 'TR0011test123456789',
+            '*/tokenized-checkout/query/payment' => Http::response([
+                'paymentId' => 'TR0011test123456789',
                 'transactionStatus' => 'Completed',
                 'amount' => '100.00',
                 'currency' => 'BDT',
@@ -188,7 +188,7 @@ class BkashPaymentServiceTest extends TestCase
         $result = $this->service->queryPayment('TR0011test123456789');
 
         $this->assertIsArray($result);
-        $this->assertEquals('TR0011test123456789', $result['paymentID']);
+        $this->assertEquals('TR0011test123456789', $result['paymentId']);
         $this->assertEquals('Completed', $result['transactionStatus']);
         $this->assertEquals('0000', $result['statusCode']);
     }
@@ -199,7 +199,7 @@ class BkashPaymentServiceTest extends TestCase
         $this->mockSuccessfulTokenResponse();
 
         Http::fake([
-            '*/checkout/payment/query/*' => Http::response([
+            '*/tokenized-checkout/query/payment' => Http::response([
                 'statusCode' => '2001',
                 'statusMessage' => 'Payment not found',
             ], 404),
@@ -218,10 +218,9 @@ class BkashPaymentServiceTest extends TestCase
 
         // Capture the request payload
         Http::fake([
-            '*/checkout/payment/create' => function ($request) {
+            '*/tokenized-checkout/payment/create' => function ($request) {
                 $payload = $request->data();
 
-                $this->assertEquals('0011', $payload['mode']);
                 $this->assertEquals('test@example.com', $payload['payerReference']);
                 $this->assertEquals('100.00', $payload['amount']);
                 $this->assertEquals('BDT', $payload['currency']);
@@ -244,7 +243,7 @@ class BkashPaymentServiceTest extends TestCase
 
         $credentials = $this->service->getCredentials();
 
-        $this->assertEquals('https://checkout.pay.bka.sh/v1.2.0-beta', $credentials['base_url']);
+        $this->assertEquals('https://tokenized.pay.bka.sh/v2/', $credentials['base_url']);
         $this->assertFalse($credentials['sandbox']);
     }
 
@@ -296,7 +295,7 @@ class BkashPaymentServiceTest extends TestCase
     public function it_uses_correct_http_headers_for_token_request(): void
     {
         Http::fake([
-            '*/checkout/token/grant' => function ($request) {
+            '*/tokenized-checkout/auth/grant-token' => function ($request) {
                 $this->assertEquals('application/json', $request->header('Content-Type')[0]);
                 $this->assertEquals('application/json', $request->header('Accept')[0]);
                 $this->assertEquals('test_username', $request->header('username')[0]);
@@ -315,8 +314,8 @@ class BkashPaymentServiceTest extends TestCase
         Cache::put('bkash_token', 'test_token', now()->addHour());
 
         Http::fake([
-            '*/checkout/payment/execute/*' => function ($request) {
-                $this->assertEquals('Bearer test_token', $request->header('Authorization')[0]);
+            '*/tokenized-checkout/payment/execute' => function ($request) {
+                $this->assertEquals('test_token', $request->header('Authorization')[0]);
                 $this->assertEquals('test_app_key', $request->header('X-APP-Key')[0]);
                 $this->assertEquals('application/json', $request->header('Content-Type')[0]);
                 $this->assertEquals('application/json', $request->header('Accept')[0]);

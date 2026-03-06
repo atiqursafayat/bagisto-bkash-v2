@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash\Models;
+namespace AtiqurSafayat\Bkash\Models;
 
 class BkashPaymentProxy extends BkashPayment
 {

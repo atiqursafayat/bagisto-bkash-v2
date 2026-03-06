@@ -1,9 +1,9 @@
 <?php
 
-namespace Ihasan\Bkash;
+namespace AtiqurSafayat\Bkash;
 
-use Ihasan\Bkash\Contracts\BkashPayment as BkashPaymentContract;
-use Ihasan\Bkash\Services\BkashPaymentService;
+use AtiqurSafayat\Bkash\Contracts\BkashPayment as BkashPaymentContract;
+use AtiqurSafayat\Bkash\Services\BkashPaymentService;
 
 class Bkash implements BkashPaymentContract
 {

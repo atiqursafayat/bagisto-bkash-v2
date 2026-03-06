@@ -1,10 +1,10 @@
 <?php
 
-namespace Ihasan\Bkash\Tests\Unit;
+namespace AtiqurSafayat\Bkash\Tests\Unit;
 
-use Ihasan\Bkash\Models\BkashPayment;
-use Ihasan\Bkash\PaymentStatus;
-use Ihasan\Bkash\Tests\TestCase;
+use AtiqurSafayat\Bkash\Models\BkashPayment;
+use AtiqurSafayat\Bkash\PaymentStatus;
+use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -228,8 +228,8 @@ class BkashPaymentModelTest extends TestCase
     {
         $largeMeta = [
             'payment_details' => [
-                'paymentID' => 'TR0011large123',
-                'trxID' => 'TXN123456789',
+                'paymentId' => 'TR0011large123',
+                'trxId' => 'TXN123456789',
                 'transactionStatus' => 'Completed',
                 'amount' => '500.00',
                 'currency' => 'BDT',
@@ -261,6 +261,6 @@ class BkashPaymentModelTest extends TestCase
 
         $this->assertIsArray($payment->meta);
         $this->assertEquals($largeMeta, $payment->meta);
-        $this->assertEquals('TR0011large123', $payment->meta['payment_details']['paymentID']);
+        $this->assertEquals('TR0011large123', $payment->meta['payment_details']['paymentId']);
     }
 }

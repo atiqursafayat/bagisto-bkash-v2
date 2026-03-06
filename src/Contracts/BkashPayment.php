@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash\Contracts;
+namespace AtiqurSafayat\Bkash\Contracts;
 
 interface BkashPayment
 {

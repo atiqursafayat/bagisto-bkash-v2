@@ -79,6 +79,15 @@ return [
                     'value' => 'https://tokenized.pay.bka.sh/v2/',
                 ],
                 [
+                    'name' => 'bkash_mode',
+                    'title' => 'bKash Checkout Mode',
+                    'type' => 'text',
+                    'validation' => 'nullable',
+                    'channel_based' => false,
+                    'locale_based' => false,
+                    'value' => '0011',
+                ],
+                [
                     'name' => 'bkash_username',
                     'title' => 'bkash Username',
                     'type' => 'text',

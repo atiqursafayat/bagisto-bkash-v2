@@ -199,14 +199,54 @@ class BkashPaymentService
      */
     private function buildPaymentPayload($cart): array
     {
+        $callbackUrl = rtrim((string) config('app.url'), '/').'/bkash/callback';
+        $mode = (string) (core()->getConfigData('sales.payment_methods.bkash.bkash_mode') ?: '0011');
+
         return [
-            'payerReference' => $cart->customer_email ?? 'guest',
-            'callbackURL' => config('app.url').'/bkash/callback',
+            'mode' => $mode,
+            'payerReference' => $this->resolvePayerReference($cart),
+            'callbackURL' => $callbackUrl,
             'amount' => number_format((float) $cart->grand_total, 2, '.', ''),
             'currency' => 'BDT',
             'intent' => 'sale',
             'merchantInvoiceNumber' => 'INV'.$cart->id,
         ];
+    }
+
+    /**
+     * Resolve payer reference for bKash checkout.
+     * bKash expects a payer identifier (commonly MSISDN), not email.
+     */
+    private function resolvePayerReference($cart): string
+    {
+        $candidates = [
+            data_get($cart, 'billing_address.phone'),
+            data_get($cart, 'billing_address.telephone'),
+            data_get($cart, 'billing_address.mobile'),
+            data_get($cart, 'customer.phone'),
+            data_get($cart, 'customer_phone'),
+            data_get($cart, 'customer_email'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (! is_scalar($candidate) || trim((string) $candidate) === '') {
+                continue;
+            }
+
+            $raw = trim((string) $candidate);
+            $digits = preg_replace('/\D+/', '', $raw) ?? '';
+
+            // Prefer MSISDN-like values when available.
+            if (strlen($digits) >= 10) {
+                return $digits;
+            }
+
+            if (filter_var($raw, FILTER_VALIDATE_EMAIL) === false) {
+                return $raw;
+            }
+        }
+
+        return '01700000000';
     }
 
     /**

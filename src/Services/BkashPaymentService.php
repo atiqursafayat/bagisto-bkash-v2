@@ -214,11 +214,28 @@ class BkashPaymentService
      */
     private function sendPaymentRequest(string $token, string $appKey, array $payload): array
     {
+        Log::info('bKash create payment request', [
+            'endpoint' => '/tokenized-checkout/payment/create',
+            'app_url' => config('app.url'),
+            'payload' => $this->sanitizeCreatePayload($payload),
+            'token_preview' => $this->maskToken($token),
+            'app_key_preview' => $this->maskToken($appKey),
+        ]);
+
         $response = Http::bkashWithToken($token, $appKey)
             ->timeout(30)
             ->post('/tokenized-checkout/payment/create', $payload);
 
         $paymentData = $response->json() ?? [];
+
+        if (! $response->successful()) {
+            Log::error('bKash create payment API error', [
+                'endpoint' => '/tokenized-checkout/payment/create',
+                'http_status' => $response->status(),
+                'response' => $this->sanitizeResponseBody($paymentData),
+                'request_ids' => $this->extractResponseRequestIds($response),
+            ]);
+        }
 
         $this->assertApiSuccess($response, $paymentData, 'Failed to create bkash payment');
 
@@ -340,6 +357,88 @@ class BkashPaymentService
         if (! empty($data['externalCode']) && (string) $data['externalCode'] !== '0000') {
             throw new PaymentCreationException($errorPrefix.': '.$this->extractApiErrorMessage($data, $response->status()));
         }
+    }
+
+    /**
+     * Keep payload logs safe and concise.
+     */
+    private function sanitizeCreatePayload(array $payload): array
+    {
+        return [
+            'payerReference' => isset($payload['payerReference']) ? $this->maskToken((string) $payload['payerReference']) : null,
+            'callbackURL' => $payload['callbackURL'] ?? null,
+            'amount' => $payload['amount'] ?? null,
+            'currency' => $payload['currency'] ?? null,
+            'intent' => $payload['intent'] ?? null,
+            'merchantInvoiceNumber' => $payload['merchantInvoiceNumber'] ?? null,
+            'mode' => $payload['mode'] ?? null,
+        ];
+    }
+
+    /**
+     * Avoid dumping entire response structures with sensitive values.
+     */
+    private function sanitizeResponseBody(array $body): array
+    {
+        $keys = [
+            'statusCode',
+            'statusMessage',
+            'externalCode',
+            'errorMessageEn',
+            'message',
+            'paymentId',
+            'paymentID',
+            'transactionStatus',
+            'bkashURL',
+        ];
+
+        $sanitized = [];
+
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $body)) {
+                $sanitized[$key] = $body[$key];
+            }
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * Extract common correlation IDs for vendor support.
+     */
+    private function extractResponseRequestIds(Response $response): array
+    {
+        $headerCandidates = [
+            'x-request-id',
+            'x-correlation-id',
+            'request-id',
+            'trace-id',
+        ];
+
+        $ids = [];
+
+        foreach ($headerCandidates as $header) {
+            $values = $response->header($header);
+            if (! empty($values)) {
+                $ids[$header] = is_array($values) ? implode(',', $values) : $values;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Show only first and last chars of sensitive tokens.
+     */
+    private function maskToken(string $value): string
+    {
+        $length = strlen($value);
+
+        if ($length <= 8) {
+            return str_repeat('*', $length);
+        }
+
+        return substr($value, 0, 4).str_repeat('*', max(0, $length - 8)).substr($value, -4);
     }
 
     /**

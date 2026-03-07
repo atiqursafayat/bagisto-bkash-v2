@@ -73,7 +73,7 @@
         ],
         "laravel": {
             "providers": [
-                "AtiqurSafayat\\Bkash\\Providers\\BkashServiceProvider"
+                "AtiqurSafayat\\Bkash\\BkashServiceProvider"
             ],
             "aliases": {
                 "Bkash": "AtiqurSafayat\\Bkash\\Facades\\Bkash"

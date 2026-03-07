@@ -2,7 +2,7 @@
 
 namespace AtiqurSafayat\Bkash\Tests;
 
-use AtiqurSafayat\Bkash\Providers\BkashServiceProvider;
+use AtiqurSafayat\Bkash\BkashServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;

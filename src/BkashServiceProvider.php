@@ -1,6 +1,6 @@
 <?php
 
-namespace AtiqurSafayat\Bkash\Providers;
+namespace AtiqurSafayat\Bkash;
 
 use AtiqurSafayat\Bkash\Bkash;
 use AtiqurSafayat\Bkash\Commands\BkashCommand;

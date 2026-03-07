@@ -2,7 +2,6 @@
 
 namespace AtiqurSafayat\Bkash;
 
-use AtiqurSafayat\Bkash\Bkash;
 use AtiqurSafayat\Bkash\Commands\BkashCommand;
 use AtiqurSafayat\Bkash\Services\BkashPaymentService;
 use Illuminate\Support\Facades\Http;

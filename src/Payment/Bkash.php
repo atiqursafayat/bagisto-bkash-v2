@@ -1,9 +1,9 @@
 <?php
 
-namespace Ihasan\Bkash\Payment;
+namespace AtiqurSafayat\Bkash\Payment;
 
-use Ihasan\Bkash\Exceptions\PaymentCreationException;
-use Ihasan\Bkash\Services\BkashPaymentService;
+use AtiqurSafayat\Bkash\Exceptions\PaymentCreationException;
+use AtiqurSafayat\Bkash\Services\BkashPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;

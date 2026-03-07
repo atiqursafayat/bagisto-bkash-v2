@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash\Exceptions;
+namespace AtiqurSafayat\Bkash\Exceptions;
 
 class PaymentExecutionException extends \Exception
 {

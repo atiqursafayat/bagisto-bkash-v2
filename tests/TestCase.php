@@ -1,8 +1,8 @@
 <?php
 
-namespace Ihasan\Bkash\Tests;
+namespace AtiqurSafayat\Bkash\Tests;
 
-use Ihasan\Bkash\BkashServiceProvider;
+use AtiqurSafayat\Bkash\Providers\BkashServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -44,8 +44,8 @@ abstract class TestCase extends Orchestra
     {
         Config::set('sales.payment_methods.bkash', [
             'bkash_sandbox' => '1',
-            'sandbox_base_url' => 'https://checkout.sandbox.bka.sh/v1.2.0-beta',
-            'live_base_url' => 'https://checkout.pay.bka.sh/v1.2.0-beta',
+            'sandbox_base_url' => 'https://tokenized.sandbox.bka.sh/v2/',
+            'live_base_url' => 'https://tokenized.pay.bka.sh/v2/',
             'bkash_username' => 'test_username',
             'bkash_password' => 'test_password',
             'bkash_app_key' => 'test_app_key',
@@ -61,7 +61,7 @@ abstract class TestCase extends Orchestra
     protected function mockSuccessfulTokenResponse(): void
     {
         Http::fake([
-            '*/checkout/token/grant' => Http::response([
+            '*/tokenized-checkout/auth/grant-token' => Http::response([
                 'id_token' => 'mock_token_12345',
                 'token_type' => 'Bearer',
                 'expires_in' => 3600,
@@ -73,7 +73,7 @@ abstract class TestCase extends Orchestra
     protected function mockFailedTokenResponse(): void
     {
         Http::fake([
-            '*/checkout/token/grant' => Http::response([
+            '*/tokenized-checkout/auth/grant-token' => Http::response([
                 'statusCode' => '2001',
                 'statusMessage' => 'Invalid credentials',
             ], 401),
@@ -83,8 +83,8 @@ abstract class TestCase extends Orchestra
     protected function mockSuccessfulPaymentCreation(): void
     {
         Http::fake([
-            '*/checkout/payment/create' => Http::response([
-                'paymentID' => 'TR0011test123456789',
+            '*/tokenized-checkout/payment/create' => Http::response([
+                'paymentId' => 'TR0011test123456789',
                 'bkashURL' => 'https://sandbox.payment.bkash.com/?paymentId=TR0011test123456789',
                 'callbackURL' => 'http://localhost/bkash/callback',
                 'successCallbackURL' => 'http://localhost/bkash/callback?status=success',
@@ -105,9 +105,9 @@ abstract class TestCase extends Orchestra
     protected function mockSuccessfulPaymentExecution(): void
     {
         Http::fake([
-            '*/checkout/payment/execute/*' => Http::response([
-                'paymentID' => 'TR0011test123456789',
-                'trxID' => 'TXN123456789',
+            '*/tokenized-checkout/payment/execute' => Http::response([
+                'paymentId' => 'TR0011test123456789',
+                'trxId' => 'TXN123456789',
                 'transactionStatus' => 'Completed',
                 'amount' => '100.00',
                 'currency' => 'BDT',
@@ -128,7 +128,7 @@ abstract class TestCase extends Orchestra
     protected function mockFailedPaymentExecution(): void
     {
         Http::fake([
-            '*/checkout/payment/execute/*' => Http::response([
+            '*/tokenized-checkout/payment/execute' => Http::response([
                 'statusCode' => '2117',
                 'statusMessage' => 'Payment execution already been called before',
             ], 400),

@@ -1,10 +1,12 @@
-# bKash Payment Gateway for Bagisto
+# bKash Payment Gateway for Bagisto (API v2)
 Simple bKash payment integration for Bagisto e-commerce stores.
+
+Forked from theihasan/bagisto-bkash and upgraded to bKash API v2.
 
 ## Installation
 
 # Install package
-```composer require theihasan/bagisto-bkash```
+```composer require atiqursafayat/bagisto-bkash-v2```
 
 # Run installation command
 ```php artisan bagisto-bkash:install```
@@ -18,8 +20,8 @@ Simple bKash payment integration for Bagisto e-commerce stores.
    - Navigate to: `Configuration → Sales → Payment Methods → bKash`
 2. Configure Settings:
    - Status: Enable
-   - Live Base URL: `https://tokenized.pay.bka.sh/v1.2.0-beta`
-   - Sandbox Base URL: `https://tokenized.sandbox.bka.sh/v1.2.0-beta`
+   - Live Base URL: `https://tokenized.pay.bka.sh/v2/`
+   - Sandbox Base URL: `https://tokenized.sandbox.bka.sh/v2/`
    - Username: Your bKash merchant number
    - Password: Your bKash password
    - App Key: Your bKash app key

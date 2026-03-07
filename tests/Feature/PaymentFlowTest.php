@@ -1,12 +1,12 @@
 <?php
 
-namespace Ihasan\Bkash\Tests\Feature;
+namespace AtiqurSafayat\Bkash\Tests\Feature;
 
-use Ihasan\Bkash\Models\BkashPayment;
-use Ihasan\Bkash\Payment\Bkash;
-use Ihasan\Bkash\PaymentStatus;
-use Ihasan\Bkash\Services\BkashPaymentService;
-use Ihasan\Bkash\Tests\TestCase;
+use AtiqurSafayat\Bkash\Models\BkashPayment;
+use AtiqurSafayat\Bkash\Payment\Bkash;
+use AtiqurSafayat\Bkash\PaymentStatus;
+use AtiqurSafayat\Bkash\Services\BkashPaymentService;
+use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -48,7 +48,7 @@ class PaymentFlowTest extends TestCase
         $cart = $this->createMockCart();
         $paymentData = $this->service->createPayment($cart);
 
-        $this->assertEquals('TR0011test123456789', $paymentData['paymentID']);
+        $this->assertEquals('TR0011test123456789', $paymentData['paymentId']);
         $this->assertDatabaseHas('bkash_payments', [
             'payment_id' => 'TR0011test123456789',
             'cart_id' => 123,
@@ -72,7 +72,7 @@ class PaymentFlowTest extends TestCase
         // Process callback would normally create order, but we'll test the payment execution part
         $executionResult = $this->service->executePayment('TR0011test123456789');
 
-        $this->assertEquals('TR0011test123456789', $executionResult['paymentID']);
+        $this->assertEquals('TR0011test123456789', $executionResult['paymentId']);
         $this->assertEquals('Completed', $executionResult['transactionStatus']);
     }
 
@@ -96,7 +96,7 @@ class PaymentFlowTest extends TestCase
 
         $meta = json_decode($payment->meta, true);
         $this->assertIsArray($meta);
-        $this->assertEquals('TR0011test123456789', $meta['paymentID']);
+        $this->assertEquals('TR0011test123456789', $meta['paymentId']);
         $this->assertEquals('Initiated', $meta['transactionStatus']);
     }
 
@@ -147,7 +147,7 @@ class PaymentFlowTest extends TestCase
             'paymentID' => 'TR0011test123456789',
             'status' => 'success',
             'signature' => 'test_signature',
-            'apiVersion' => '1.2.0-beta',
+            'apiVersion' => 'v2',
         ]);
 
         // Mock cart and order creation dependencies

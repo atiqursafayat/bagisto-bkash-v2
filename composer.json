@@ -1,18 +1,22 @@
 {
-    "name": "theihasan/bagisto-bkash",
-    "description": "Seamless Bkash Transactions for Your Bagisto Store",
+    "name": "atiqursafayat/bagisto-bkash-v2",
+    "description": "bKash Payment Gateway for Bagisto (Updated to API v2)",
     "keywords": [
         "Ihasan",
         "laravel",
         "bagisto-bkash"
     ],
-    "homepage": "https://github.com/theihasan/bagisto-bkash",
+    "homepage": "https://github.com/atiqursafayat/bagisto-bkash-v2",
     "license": "MIT",
     "authors": [
         {
+            "name": "Atiqur Safayat",
+            "role": "Maintainer"
+        },
+        {
             "name": "Abul Hassan",
             "email": "imabulhasan99@gmail.com",
-            "role": "Developer"
+            "role": "Original Author"
         }
     ],
     "require": {
@@ -34,13 +38,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Ihasan\\Bkash\\": "src/",
-            "Ihasan\\Bkash\\Database\\Factories\\": "database/factories/"
+            "AtiqurSafayat\\Bkash\\": "src/",
+            "AtiqurSafayat\\Bkash\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Ihasan\\Bkash\\Tests\\": "tests/",
+            "AtiqurSafayat\\Bkash\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -60,12 +64,19 @@
         }
     },
     "extra": {
+        "credits": [
+            {
+                "name": "Abul Hassan",
+                "package": "theihasan/bagisto-bkash",
+                "role": "Original package author"
+            }
+        ],
         "laravel": {
             "providers": [
-                "Ihasan\\Bkash\\BkashServiceProvider"
+                "AtiqurSafayat\\Bkash\\Providers\\BkashServiceProvider"
             ],
             "aliases": {
-                "Bkash": "Ihasan\\Bkash\\Facades\\Bkash"
+                "Bkash": "AtiqurSafayat\\Bkash\\Facades\\Bkash"
             }
         }
     },

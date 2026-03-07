@@ -1,8 +1,8 @@
 <?php
 
-namespace Ihasan\Bkash\Http\Controllers;
+namespace AtiqurSafayat\Bkash\Http\Controllers;
 
-use Ihasan\Bkash\Payment\Bkash;
+use AtiqurSafayat\Bkash\Payment\Bkash;
 use Illuminate\Routing\Controller;
 
 class BkashController extends Controller

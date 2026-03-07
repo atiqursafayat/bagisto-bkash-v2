@@ -1,6 +1,6 @@
 <?php
 
-namespace Ihasan\Bkash\Database\Factories;
+namespace AtiqurSafayat\Bkash\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

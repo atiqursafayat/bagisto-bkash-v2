@@ -7,6 +7,7 @@ use AtiqurSafayat\Bkash\Exceptions\PaymentCreationException;
 use AtiqurSafayat\Bkash\Exceptions\TokenException;
 use AtiqurSafayat\Bkash\Models\BkashPayment;
 use AtiqurSafayat\Bkash\PaymentStatus;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -345,6 +346,23 @@ class BkashPaymentService
             $this->assertApiSuccess($response, $data, 'Payment execution failed');
 
             return $data;
+        } catch (ConnectionException $e) {
+            Log::warning('bKash execute payment timeout, checking query API', [
+                'paymentId' => $paymentId,
+                'error' => $e->getMessage(),
+            ]);
+
+            $queryData = $this->queryPayment($paymentId);
+            $queryStatus = strtolower((string) ($queryData['transactionStatus'] ?? ''));
+
+            if (in_array($queryStatus, ['completed', 'success'], true)) {
+                return $queryData;
+            }
+
+            throw new PaymentCreationException(
+                'Payment execution timeout and query did not confirm completion: '
+                .$this->extractApiErrorMessage($queryData, 408)
+            );
         } catch (PaymentCreationException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -369,12 +387,33 @@ class BkashPaymentService
         $response = Http::bkashWithToken($token, $credentials['app_key'])
             ->timeout(30)
             ->post('/tokenized-checkout/query/payment', [
-                'paymentId' => $paymentId,
+                'paymentID' => $paymentId,
             ]);
 
         $data = $response->json() ?? [];
 
         $this->assertApiSuccess($response, $data, 'Payment query failed');
+
+        return $data;
+    }
+
+    /**
+     * Search transaction by transaction ID.
+     */
+    public function searchTransaction(string $trxId): array
+    {
+        $credentials = $this->getCredentials();
+        $token = $this->getToken();
+
+        $response = Http::bkashWithToken($token, $credentials['app_key'])
+            ->timeout(30)
+            ->post('/tokenized-checkout/general/searchTransaction', [
+                'trxID' => $trxId,
+            ]);
+
+        $data = $response->json() ?? [];
+
+        $this->assertApiSuccess($response, $data, 'Search transaction failed');
 
         return $data;
     }
@@ -486,6 +525,13 @@ class BkashPaymentService
      */
     private function extractApiErrorMessage(array $data, int $httpStatus): string
     {
+        $code = (string) ($data['statusCode'] ?? $data['externalCode'] ?? '');
+        $errorMap = (array) config('bagisto-bkash.error_messages', []);
+
+        if ($code !== '' && isset($errorMap[$code])) {
+            return (string) $errorMap[$code];
+        }
+
         return (string) (
             $data['errorMessageEn']
             ?? $data['statusMessage']
@@ -526,12 +572,14 @@ class BkashPaymentService
             $bkashPayment = $this->findPaymentRecord($paymentId);
 
             if ($paymentStatus !== 'success') {
+                $normalizedStatus = $this->mapCallbackStatusToPaymentStatus($paymentStatus);
+
                 $bkashPayment->update([
-                    'status' => $paymentStatus,
+                    'status' => $normalizedStatus,
                     'meta' => json_encode($request->all()),
                 ]);
 
-                session()->flash('error', 'Payment was cancelled. Please try again.');
+                session()->flash('error', $this->getCallbackFailureMessage($paymentStatus));
 
                 return redirect()->route('shop.checkout.cart.index');
             }
@@ -552,6 +600,30 @@ class BkashPaymentService
 
             return redirect()->route('shop.checkout.cart.index');
         }
+    }
+
+    /**
+     * Normalize callback status values to package status values.
+     */
+    private function mapCallbackStatusToPaymentStatus(string $callbackStatus): string
+    {
+        return match (strtolower($callbackStatus)) {
+            'cancel', 'cancelled' => PaymentStatus::CANCELLED->value,
+            'failure', 'failed' => PaymentStatus::FAILED->value,
+            default => PaymentStatus::PENDING->value,
+        };
+    }
+
+    /**
+     * User-facing status messages for callback failure scenarios.
+     */
+    private function getCallbackFailureMessage(string $callbackStatus): string
+    {
+        return match (strtolower($callbackStatus)) {
+            'cancel', 'cancelled' => 'Payment Cancelled',
+            'failure', 'failed' => 'Payment Failed',
+            default => 'Payment could not be completed. Please try again.',
+        };
     }
 
     /**

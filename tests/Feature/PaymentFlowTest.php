@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use PHPUnit\Framework\Attributes\Test;
+use Webkul\Checkout\Models\Cart;
 use Webkul\Sales\Repositories\InvoiceRepository;
 use Webkul\Sales\Repositories\OrderRepository;
 
@@ -65,7 +66,7 @@ class PaymentFlowTest extends TestCase
         ]);
 
         // Mock cart retrieval for callback
-        $this->app->bind(\Webkul\Checkout\Models\Cart::class, function () use ($cart) {
+        $this->app->bind(Cart::class, function () use ($cart) {
             return $cart;
         });
 
@@ -291,7 +292,7 @@ class PaymentFlowTest extends TestCase
     private function mockCartAndOrderCreation(): void
     {
         // Mock cart
-        $this->app->bind(\Webkul\Checkout\Models\Cart::class, function () {
+        $this->app->bind(Cart::class, function () {
             $cart = new class
             {
                 public $id = 123;

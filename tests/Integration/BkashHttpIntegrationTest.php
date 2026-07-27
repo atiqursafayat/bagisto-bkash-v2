@@ -2,6 +2,8 @@
 
 namespace AtiqurSafayat\Bkash\Tests\Integration;
 
+use AtiqurSafayat\Bkash\Exceptions\PaymentCreationException;
+use AtiqurSafayat\Bkash\Exceptions\TokenException;
 use AtiqurSafayat\Bkash\Services\BkashPaymentService;
 use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Http\Client\Request;
@@ -161,7 +163,7 @@ class BkashHttpIntegrationTest extends TestCase
             '*tokenized-checkout/payment/execute' => Http::response(null, 500),
         ]);
 
-        $this->expectException(\AtiqurSafayat\Bkash\Exceptions\PaymentCreationException::class);
+        $this->expectException(PaymentCreationException::class);
 
         $this->service->executePayment('TR001test');
     }
@@ -175,7 +177,7 @@ class BkashHttpIntegrationTest extends TestCase
                 ->push(['id_token' => 'retry_token', 'expires_in' => 3600], 200),
         ]);
 
-        $this->expectException(\AtiqurSafayat\Bkash\Exceptions\TokenException::class);
+        $this->expectException(TokenException::class);
 
         $this->service->getToken();
     }

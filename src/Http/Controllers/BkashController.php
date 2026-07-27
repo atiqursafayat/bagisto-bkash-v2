@@ -3,6 +3,7 @@
 namespace AtiqurSafayat\Bkash\Http\Controllers;
 
 use AtiqurSafayat\Bkash\Payment\Bkash;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
 class BkashController extends Controller
@@ -17,7 +18,7 @@ class BkashController extends Controller
     /**
      * Handle bkash payment callback
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function callback()
     {

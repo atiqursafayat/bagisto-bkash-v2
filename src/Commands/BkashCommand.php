@@ -2,6 +2,7 @@
 
 namespace AtiqurSafayat\Bkash\Commands;
 
+use AtiqurSafayat\Bkash\Models\BkashPayment;
 use Illuminate\Console\Command;
 
 class BkashCommand extends Command
@@ -24,7 +25,7 @@ class BkashCommand extends Command
     private function checkPaymentStatus(string $paymentId): int
     {
         try {
-            $payment = \AtiqurSafayat\Bkash\Models\BkashPayment::where('payment_id', $paymentId)->first();
+            $payment = BkashPayment::where('payment_id', $paymentId)->first();
 
             if (! $payment) {
                 $this->error("Payment with ID {$paymentId} not found.");

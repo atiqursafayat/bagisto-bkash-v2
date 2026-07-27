@@ -6,6 +6,7 @@ use AtiqurSafayat\Bkash\Models\BkashPayment;
 use AtiqurSafayat\Bkash\PaymentStatus;
 use AtiqurSafayat\Bkash\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 
 class BkashPaymentModelTest extends TestCase
@@ -137,8 +138,8 @@ class BkashPaymentModelTest extends TestCase
 
         $this->assertNotNull($payment->created_at);
         $this->assertNotNull($payment->updated_at);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $payment->created_at);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $payment->updated_at);
+        $this->assertInstanceOf(Carbon::class, $payment->created_at);
+        $this->assertInstanceOf(Carbon::class, $payment->updated_at);
     }
 
     #[Test]
